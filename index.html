@@ -312,24 +312,46 @@
     }
 
     @media print {
-      body {
-        background: white;
-        zoom: 70%;
-        -moz-transform: scale(0.7);
-        -moz-transform-origin: 0 0;
-      }
-      .container {
-        width: 100%;
-        margin: 0;
-      }
-      .upload-section, .test-options, .actions {
-        display: none !important;
-      }
-      .test-preview {
-        box-shadow: none;
-        padding: 20px;
-      }
-    }
+  body {
+    background: white;
+    margin: 0;
+  }
+
+  /* uporabljaj skoraj celo širino A4 */
+  .container {
+    width: 100%;
+    margin: 8mm 12mm;   /* manjše robove levo/desno in zgoraj/spodaj */
+  }
+
+  /* na printu ne kažemo upload/konfiguracije/gumbov */
+  .upload-section,
+  .test-options,
+  .actions {
+    display: none !important;
+  }
+
+  .test-preview {
+    box-shadow: none;
+    padding: 0;         /* brez dodatnega notranjega roba */
+  }
+
+  /* malo zmanjšamo prazne razmake, da gre več na eno stran */
+  .exercise {
+    margin-bottom: 20px;
+  }
+
+  .question {
+    margin-bottom: 12px;
+  }
+
+  .question-content {
+    font-size: 14px;
+  }
+
+  .answer-line {
+    min-height: 16px;
+  }
+}
 
     @media (max-width: 768px) {
       .option-row {
