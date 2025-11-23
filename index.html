@@ -317,31 +317,52 @@
     margin: 0;
   }
 
-  /* uporabljaj skoraj celo širino A4 */
+  /* naj se raztegne čez celotno uporabno širino strani */
   .container {
     width: 100%;
-    margin: 8mm 12mm;   /* manjše robove levo/desno in zgoraj/spodaj */
+    max-width: none;   /* odpravi omejitev 900px */
+    margin: 0;
   }
 
-  /* na printu ne kažemo upload/konfiguracije/gumbov */
+  /* skrij UI elemente in obvestila */
   .upload-section,
   .test-options,
-  .actions {
+  .actions,
+  .toast {
     display: none !important;
   }
 
   .test-preview {
     box-shadow: none;
-    padding: 0;         /* brez dodatnega notranjega roba */
+    padding: 0;
   }
 
-  /* malo zmanjšamo prazne razmake, da gre več na eno stran */
+  /* malo zgostimo vsebino */
+  .test-header {
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+  }
+
+  .test-header h2 {
+    font-size: 18px;
+  }
+
   .exercise {
-    margin-bottom: 20px;
+    margin-bottom: 14px;
+  }
+
+  .exercise-title {
+    margin-top: 4px;
+    margin-bottom: 6px;
+    font-size: 14px;
   }
 
   .question {
-    margin-bottom: 12px;
+    margin-bottom: 6px;
+  }
+
+  .question-number {
+    font-size: 13px;
   }
 
   .question-content {
