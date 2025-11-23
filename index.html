@@ -1,0 +1,772 @@
+<!doctype doctype>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Translation Test Generator</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 900px;
+      margin: 40px auto;
+    }
+
+    .upload-section {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      margin: 0 0 10px 0;
+      font-size: 32px;
+      font-weight: 700;
+      color: #1a202c;
+    }
+
+    .subtitle {
+      color: #718096;
+      margin-bottom: 30px;
+      font-size: 16px;
+    }
+
+    .file-upload-area {
+      border: 3px dashed #cbd5e0;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      background: #f7fafc;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .file-upload-area:hover {
+      border-color: #667eea;
+      background: #edf2f7;
+    }
+
+    .file-upload-area.dragover {
+      border-color: #667eea;
+      background: #e6f2ff;
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .upload-text {
+      font-size: 18px;
+      color: #2d3748;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .upload-hint {
+      font-size: 14px;
+      color: #718096;
+      margin-bottom: 20px;
+    }
+
+    .format-example {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 20px;
+      text-align: left;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #4a5568;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    .btn:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .loaded-info {
+      background: #f0fff4;
+      border: 1px solid #9ae6b4;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 20px 0;
+      color: #22543d;
+      font-weight: 600;
+    }
+
+    .test-options {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      margin-bottom: 30px;
+    }
+
+    .option-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+
+    label {
+      font-weight: 600;
+      color: #2d3748;
+      min-width: 200px;
+    }
+
+    input[type="number"], input[type="text"] {
+      flex: 1;
+      padding: 10px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: border-color 0.3s ease;
+    }
+
+    input[type="number"]:focus, input[type="text"]:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .generate-section {
+      text-align: center;
+    }
+
+    .generate-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 18px 48px;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .generate-btn:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+    }
+
+    .generate-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .test-preview {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      margin-bottom: 30px;
+      display: none;
+    }
+
+    .test-preview.active {
+      display: block;
+    }
+
+    .test-header {
+      text-align: center;
+      border-bottom: 3px solid #2d3748;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .test-header h2 {
+      margin: 0 0 10px 0;
+      font-size: 28px;
+      color: #1a202c;
+    }
+
+    .test-info {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      font-size: 14px;
+      color: #4a5568;
+    }
+
+    .exercise {
+      margin-bottom: 35px;
+      page-break-inside: avoid;
+    }
+
+    .exercise-title {
+      background: #edf2f7;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+
+    .question {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .question-number {
+      font-weight: 700;
+      color: #667eea;
+      min-width: 30px;
+    }
+
+    .question-content {
+      flex: 1;
+      color: #2d3748;
+      font-size: 15px;
+    }
+
+    .answer-line {
+      border-bottom: 2px solid #cbd5e0;
+      flex: 1;
+      margin-left: 10px;
+      min-width: 200px;
+    }
+
+    .hint {
+      color: #718096;
+      font-style: italic;
+      font-size: 14px;
+      margin-left: 10px;
+    }
+
+    .actions {
+      text-align: center;
+      margin-top: 30px;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .print-btn {
+      background: #48bb78;
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .print-btn:hover {
+      background: #38a169;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+      .container {
+        width: 100%;
+        margin: 0;
+      }
+      .upload-section, .test-options, .actions {
+        display: none !important;
+      }
+      .test-preview {
+        box-shadow: none;
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .option-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      label {
+        min-width: auto;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div class="upload-section">
+    <h1 id="main-title">Translation Test Generator</h1>
+    <p class="subtitle">Upload your translation database and create randomized tests instantly</p>
+    <div class="file-upload-area" id="uploadArea">
+     <div class="upload-icon">
+      📄
+     </div>
+     <div class="upload-text">
+      Click to upload or drag and drop
+     </div>
+     <div class="upload-hint">
+      Upload your .txt or .rtf file with translations
+     </div><input type="file" id="fileInput" accept=".txt,.rtf"> <button class="btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+     <div class="format-example"><strong>Expected format:</strong><br>
+       Q: lase<br>
+       A: hair<br><br>
+       Q: ušesa<br>
+       A: ears
+     </div>
+    </div>
+    <div id="loadedInfo" class="loaded-info" style="display: none;">
+     ✓ <span id="entryCount">0</span> translations loaded successfully!
+    </div>
+   </div>
+   <div class="test-options" id="testOptions" style="display: none;">
+    <h2 style="margin-top: 0; color: #1a202c;">Test Configuration</h2>
+    <div class="option-row"><label for="numVersions">Number of versions:</label> <input type="number" id="numVersions" min="1" max="10" value="3">
+    </div>
+    <div class="option-row"><label for="questionsPerExercise">Questions per exercise:</label> <input type="number" id="questionsPerExercise" min="3" max="20" value="5">
+    </div>
+    <div class="option-row"><label for="studentName">Student name field:</label> <input type="text" id="studentName" placeholder="Name: ________________">
+    </div>
+    <div class="generate-section"><button class="generate-btn" id="generateBtn" onclick="generateTests()"> 🎲 Generate Tests </button>
+    </div>
+   </div>
+   <div id="testsContainer"></div>
+  </div>
+  <script>
+    let translations = [];
+    
+    const defaultConfig = {
+      test_title: "Translation Test",
+      school_name: "English Language School",
+      exercise1_instruction: "Translate English into Slovene",
+      exercise2_instruction: "Translate Slovene into English",
+      exercise3_instruction: "Fill in the gaps with correct English words (Slovene hints provided)",
+      exercise4_instruction: "Correct the spelling mistakes"
+    };
+
+    let config = { ...defaultConfig };
+
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFile(files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    function handleFile(file) {
+      const isRTF = file.name.toLowerCase().endsWith('.rtf');
+      const isTXT = file.name.toLowerCase().endsWith('.txt');
+      
+      if (!isRTF && !isTXT) {
+        showToast('Please upload a .txt or .rtf file', 'error');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        let text = e.target.result;
+        
+        // If RTF, strip RTF formatting
+        if (isRTF) {
+          text = stripRTF(text);
+        }
+        
+        parseTranslations(text);
+      };
+      reader.readAsText(file);
+    }
+
+    function stripRTF(rtfText) {
+      // Remove RTF control words and groups
+      let text = rtfText;
+      
+      // Remove RTF header
+      text = text.replace(/\{\\rtf[^}]*\}/g, '');
+      
+      // Remove font table
+      text = text.replace(/\{\\fonttbl[^}]*\}/g, '');
+      
+      // Remove color table
+      text = text.replace(/\{\\colortbl;[^}]*\}/g, '');
+      
+      // Remove stylesheet
+      text = text.replace(/\{\\stylesheet[^}]*\}/g, '');
+      
+      // Remove other control groups
+      text = text.replace(/\{\\[^}]*\}/g, '');
+      
+      // Remove control words with parameters
+      text = text.replace(/\\[a-z]+(-?[0-9]+)?[ ]?/gi, '');
+      
+      // Remove special characters
+      text = text.replace(/\\'/g, '');
+      text = text.replace(/\\/g, '');
+      
+      // Remove braces
+      text = text.replace(/[{}]/g, '');
+      
+      // Clean up extra whitespace
+      text = text.replace(/\s+/g, ' ');
+      
+      // Split into lines and clean
+      const lines = text.split(/[\r\n]+/);
+      return lines.map(line => line.trim()).filter(line => line.length > 0).join('\n');
+    }
+
+    function parseTranslations(text) {
+      translations = [];
+      
+      // Try multiple splitting methods to handle different line endings
+      let lines = text.split(/\r\n|\r|\n/);
+      
+      // Debug: Show first few lines
+      console.log('Total lines:', lines.length);
+      console.log('First 10 lines:', lines.slice(0, 10));
+      
+      let currentQ = null;
+      
+      for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+        if (!line) continue;
+        
+        console.log(`Line ${i}: "${line}"`);
+        
+        // Check if line starts with Q: (case insensitive, flexible spacing)
+        if (line.toLowerCase().indexOf('q:') === 0) {
+          currentQ = line.substring(2).trim();
+          console.log('Found Q:', currentQ);
+        }
+        // Check if line starts with A: and we have a Q stored
+        else if (line.toLowerCase().indexOf('a:') === 0 && currentQ) {
+          const answer = line.substring(2).trim();
+          console.log('Found A:', answer);
+          
+          if (currentQ && answer) {
+            translations.push({
+              slovene: currentQ,
+              english: answer
+            });
+            console.log('Added pair:', currentQ, '->', answer);
+          }
+          
+          currentQ = null;
+        }
+      }
+
+      console.log('Total translations found:', translations.length);
+
+      if (translations.length === 0) {
+        showToast('No valid translations found. Please check the browser console (F12) to see what was read from your file.', 'error');
+        return;
+      }
+
+      document.getElementById('loadedInfo').style.display = 'block';
+      document.getElementById('entryCount').textContent = translations.length;
+      document.getElementById('testOptions').style.display = 'block';
+      
+      showToast(`${translations.length} translations loaded!`, 'success');
+    }
+
+    function shuffleArray(array) {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    }
+
+    function createMisspelling(word) {
+      if (word.length < 3) return word;
+      
+      const strategies = [
+        () => {
+          const pos = Math.floor(Math.random() * (word.length - 1));
+          return word.slice(0, pos) + word[pos + 1] + word[pos] + word.slice(pos + 2);
+        },
+        () => {
+          const pos = Math.floor(Math.random() * word.length);
+          const vowels = 'aeiou';
+          const char = word[pos].toLowerCase();
+          if (vowels.includes(char)) {
+            const newVowel = vowels[Math.floor(Math.random() * vowels.length)];
+            return word.slice(0, pos) + newVowel + word.slice(pos + 1);
+          }
+          return word;
+        },
+        () => {
+          if (word.length > 4) {
+            const pos = Math.floor(Math.random() * (word.length - 1)) + 1;
+            return word.slice(0, pos) + word.slice(pos + 1);
+          }
+          return word;
+        }
+      ];
+
+      const strategy = strategies[Math.floor(Math.random() * strategies.length)];
+      const misspelled = strategy();
+      return misspelled !== word ? misspelled : createMisspelling(word);
+    }
+
+    function generateTests() {
+      const numVersions = parseInt(document.getElementById('numVersions').value);
+      const questionsPerEx = parseInt(document.getElementById('questionsPerExercise').value);
+      
+      if (translations.length < questionsPerEx) {
+        showToast(`Need at least ${questionsPerEx} translations in your database`, 'error');
+        return;
+      }
+
+      const container = document.getElementById('testsContainer');
+      container.innerHTML = '';
+
+      const versions = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+
+      for (let v = 0; v < numVersions; v++) {
+        const shuffled = shuffleArray(translations);
+        
+        const ex1 = shuffled.slice(0, questionsPerEx);
+        const ex2 = shuffled.slice(questionsPerEx, questionsPerEx * 2);
+        const ex3 = shuffled.slice(questionsPerEx * 2, questionsPerEx * 3);
+        const ex4 = shuffled.slice(questionsPerEx * 3, questionsPerEx * 4);
+
+        const testDiv = document.createElement('div');
+        testDiv.className = 'test-preview active';
+        testDiv.innerHTML = `
+          <div class="test-header">
+            <h2>${config.test_title || defaultConfig.test_title}</h2>
+            <div>${config.school_name || defaultConfig.school_name}</div>
+            <div class="test-info">
+              <div>Version: <strong>${versions[v]}</strong></div>
+              <div>${document.getElementById('studentName').value || 'Name: ________________'}</div>
+              <div>Date: ________________</div>
+            </div>
+          </div>
+
+          <div class="exercise">
+            <div class="exercise-title">Exercise 1: ${config.exercise1_instruction || defaultConfig.exercise1_instruction}</div>
+            ${ex1.map((item, i) => `
+              <div class="question">
+                <span class="question-number">${i + 1}.</span>
+                <span class="question-content">${item.english}</span>
+                <span class="answer-line"></span>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="exercise">
+            <div class="exercise-title">Exercise 2: ${config.exercise2_instruction || defaultConfig.exercise2_instruction}</div>
+            ${ex2.map((item, i) => `
+              <div class="question">
+                <span class="question-number">${i + 1}.</span>
+                <span class="question-content">${item.slovene}</span>
+                <span class="answer-line"></span>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="exercise">
+            <div class="exercise-title">Exercise 3: ${config.exercise3_instruction || defaultConfig.exercise3_instruction}</div>
+            ${ex3.map((item, i) => {
+              const words = item.english.split(' ');
+              const blankPos = Math.floor(Math.random() * words.length);
+              const answer = words[blankPos];
+              words[blankPos] = '_____';
+              return `
+                <div class="question">
+                  <span class="question-number">${i + 1}.</span>
+                  <span class="question-content">${words.join(' ')}<span class="hint">(${item.slovene})</span></span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <div class="exercise">
+            <div class="exercise-title">Exercise 4: ${config.exercise4_instruction || defaultConfig.exercise4_instruction}</div>
+            ${ex4.map((item, i) => {
+              const words = item.english.split(' ');
+              const wordToMisspell = Math.floor(Math.random() * words.length);
+              const misspelled = createMisspelling(words[wordToMisspell]);
+              words[wordToMisspell] = `<strong>${misspelled}</strong>`;
+              return `
+                <div class="question">
+                  <span class="question-number">${i + 1}.</span>
+                  <span class="question-content">${words.join(' ')}</span>
+                  <span class="answer-line"></span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <div class="actions">
+            <button class="print-btn" onclick="printTest(this)">����️ Print Version ${versions[v]}</button>
+            <button class="btn" onclick="downloadTest(this, '${versions[v]}')">⬇️ Download PDF</button>
+          </div>
+        `;
+
+        container.appendChild(testDiv);
+      }
+
+      container.scrollIntoView({ behavior: 'smooth' });
+      showToast('Tests generated successfully!', 'success');
+    }
+
+    function printTest(button) {
+      const testDiv = button.closest('.test-preview');
+      const allTests = document.querySelectorAll('.test-preview');
+      
+      allTests.forEach(test => test.style.display = 'none');
+      testDiv.style.display = 'block';
+      
+      window.print();
+      
+      allTests.forEach(test => test.classList.add('active'));
+    }
+
+    function downloadTest(button, version) {
+      showToast(`To save as PDF: Print this page and select "Save as PDF"`, 'info');
+      printTest(button);
+    }
+
+    function showToast(message, type) {
+      const existingToast = document.querySelector('.toast');
+      if (existingToast) {
+        existingToast.remove();
+      }
+
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 16px 24px;
+        background: ${type === 'error' ? '#fc8181' : type === 'success' ? '#48bb78' : '#4299e1'};
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+      `;
+
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    async function onConfigChange(newConfig) {
+      config = { ...defaultConfig, ...newConfig };
+      
+      document.getElementById('main-title').textContent = config.test_title || defaultConfig.test_title;
+      
+      const testHeaders = document.querySelectorAll('.test-header h2');
+      testHeaders.forEach(header => {
+        header.textContent = config.test_title || defaultConfig.test_title;
+      });
+
+      const schoolNames = document.querySelectorAll('.test-header > div:first-of-type');
+      schoolNames.forEach(schoolName => {
+        schoolName.textContent = config.school_name || defaultConfig.school_name;
+      });
+
+      const exerciseTitles = document.querySelectorAll('.exercise-title');
+      exerciseTitles.forEach((title, index) => {
+        const exerciseNum = (index % 4) + 1;
+        const configKey = `exercise${exerciseNum}_instruction`;
+        const instruction = config[configKey] || defaultConfig[configKey];
+        title.textContent = `Exercise ${exerciseNum}: ${instruction}`;
+      });
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["test_title", config.test_title || defaultConfig.test_title],
+          ["school_name", config.school_name || defaultConfig.school_name],
+          ["exercise1_instruction", config.exercise1_instruction || defaultConfig.exercise1_instruction],
+          ["exercise2_instruction", config.exercise2_instruction || defaultConfig.exercise2_instruction],
+          ["exercise3_instruction", config.exercise3_instruction || defaultConfig.exercise3_instruction],
+          ["exercise4_instruction", config.exercise4_instruction || defaultConfig.exercise4_instruction]
+        ])
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a33301ad15daa2f',t:'MTc2MzkyNzM0Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
